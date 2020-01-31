@@ -1,41 +1,34 @@
 import '@k2oss/k2-broker-core';
 
 metadata = {
-    systemName: "com.k2.example",
-    displayName: "Example Broker",
-    description: "An example broker that accesses JSONPlaceholder."
+    systemName: "com.sample.odata",
+    displayName: "Sample OData Broker",
+    description: "An sample broker that accesses OData."
 };
 
-ondescribe = async function(): Promise<void> {
+ondescribe = function() {
     postSchema({
+        // https://www.odata.org/getting-started/understand-odata-in-6-steps/
+        // http://olingo.apache.org/doc/javascript/index.html
         objects: {
-            "com.k2.todo": {
-                displayName: "TODO",
-                description: "Manages a TODO list",
+            "com.sample.odata.people": {
+                displayName: "People",
+                description: "People",
                 properties: {
-                    "com.k2.todo.id": {
-                        displayName: "ID",
-                        type: "number"
+                    "com.sample.odata.people.userName": {
+                        displayName: "User Name",
+                        type: "string" 
                     },
-                    "com.k2.todo.userId": {
-                        displayName: "User ID",
-                        type: "number"
-                    },
-                    "com.k2.todo.title": {
-                        displayName: "Title",
-                        type: "string"
-                    },
-                    "com.k2.todo.completed": {
-                        displayName: "Completed",
-                        type: "boolean"
+                    "com.sample.odata.people.city": {
+                        displayName: "City",
+                        type: "string" 
                     }
                 },
                 methods: {
-                    "com.k2.todo.get": {
-                        displayName: "Get TODO",
+                    "com.sample.odata.people.get": {
+                        displayName: "Get People",
                         type: "read",
-                        inputs: [ "com.k2.todo.id" ],
-                        outputs: [ "com.k2.todo.id", "com.k2.todo.userId", "com.k2.todo.title", "com.k2.todo.completed" ]
+                        outputs: [ "com.sample.odata.people.userName", "com.sample.odata.people.city" ]
                     }
                 }
             }
@@ -43,46 +36,42 @@ ondescribe = async function(): Promise<void> {
     });
 }
 
-onexecute = async function(objectName, methodName, _parameters, properties): Promise<void> {
+onexecute = function(objectName, methodName, parameters, properties) {
     switch (objectName)
     {
-        case "com.k2.todo": await onexecuteTodo(methodName, properties); break;
+        case "com.sample.odata.people": onexecuteGet(methodName, parameters, properties); break;
         default: throw new Error("The object " + objectName + " is not supported.");
     }
 }
 
-async function onexecuteTodo(methodName: string, properties: SingleRecord): Promise<void> {
+function onexecuteGet(methodName: string, parameters: SingleRecord, properties: SingleRecord) {
     switch (methodName)
     {
-        case "com.k2.todo.get": await onexecuteTodoGet(properties); break;
+        case "com.sample.odata.people.get": onexecuteGetPeople(parameters, properties); break;
         default: throw new Error("The method " + methodName + " is not supported.");
     }
 }
 
-function onexecuteTodoGet(properties: SingleRecord): Promise<void> {
-    return new Promise<void>((resolve, reject) =>
-    {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            try {
-                if (xhr.readyState !== 4) return;
-                if (xhr.status !== 200) throw new Error("Failed with status " + xhr.status);
+function onexecuteGetPeople(parameters: SingleRecord, properties: SingleRecord) {
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
 
-                var obj = JSON.parse(xhr.responseText);
-                postResult({
-                    "com.k2.todo.id": obj.id,
-                    "com.k2.todo.userId": obj.userId,
-                    "com.k2.todo.title": obj.title,
-                    "com.k2.todo.completed": obj.completed
-                });
-                resolve();
-            } catch (e) {
-                reject(e);
-            }
-        };
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState !== 4) return;
+        if (xhr.status !== 200) throw new Error("Failed with status " + xhr.status);
 
-        xhr.open("GET", 'https://jsonplaceholder.typicode.com/todos/' + properties["com.k2.todo.id"]);
-        xhr.setRequestHeader('test', 'test value');
-        xhr.send();
-    });
+        console.log(xhr.responseText);
+        var obj = JSON.parse(xhr.responseText);
+        console.log(obj.AddressInfo[0].City.Name); 
+
+        postResult({
+            "com.sample.odata.people.userName": obj.UserName,
+            "com.sample.odata.people.city": obj.AddressInfo[0].City.Name
+        });
+    };
+
+    var url = "https://services.odata.org/V4/(S(a2k31bgwiyejn2j2iiybvq4p))/TripPinServiceRW/People('russellwhyte')";
+    xhr.open("GET", url);
+   
+    xhr.send();
 }

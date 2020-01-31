@@ -1,12 +1,12 @@
-# K2 TypeScript Broker Template
+# K2 TypeScript Broker OData Sample
 
-This is demonstrates best-practices for developing a K2 Broker using TypeScript.
+This demonstrates how to develop a K2 Broker using OData.
 
 # Features
 
   - Full object model intellisense for making development easier
-  - Sample broker code that accesses jsonplaceholder.
-  - Sample unit tests with mocks and code coverage.
+  - Sample broker code that accesses OData v4.
+  - Sample unit tests.
   - RollupJS configuration for TypeScript.
 
 ## Getting Started
