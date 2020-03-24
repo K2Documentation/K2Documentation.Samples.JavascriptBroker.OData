@@ -38,14 +38,14 @@ ondescribe = async function (): Promise<void> {
 
 onexecute = async function (objectName, methodName, parameters, properties): Promise<void> {
     switch (objectName) {
-        case "people": onexecuteGet(methodName, parameters, properties); break;
+        case "people": await onexecuteGet(methodName, parameters, properties); break;
         default: throw new Error("The object " + objectName + " is not supported.");
     }
 }
 
 async function onexecuteGet(methodName: string, parameters: SingleRecord, properties: SingleRecord): Promise<void> {
     switch (methodName) {
-        case "get": onexecuteGetPeople(parameters, properties); break;
+        case "get": await onexecuteGetPeople(parameters, properties); break;
         default: throw new Error("The method " + methodName + " is not supported.");
     }
 }
