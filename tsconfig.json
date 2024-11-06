@@ -1,3 +1,16 @@
 {
-    "extends": "@k2oss/k2-broker-core/shared/tsconfig.json"
+    "extends": "@k2oss/k2-broker-core/shared/tsconfig.json",
+    "include": [
+        "node_modules/@k2oss/k2-broker-core/**/*.d.ts"
+    ],
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "ESNext",
+        "strict": true,
+        "importHelpers": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "incremental": false
+}
 }

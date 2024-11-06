@@ -2,8 +2,9 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import { terser } from "rollup-plugin-terser";
+import typescript from '@rollup/plugin-typescript';
 
 const BUILD_ENV = JSON.stringify(process.env.NODE_ENV || 'development');
 const devBuild = process.env.NODE_ENV === 'development';
@@ -20,14 +21,22 @@ function buildConfig(inputFile) {
 
     const outputFile = getOutputFile(inputFile);
     const extensions = ['.js', '.ts'];
-    const runtimeHelpers = true;
 
     const plugins = [
         resolve(),
         commonjs(),
-        replace({ BUILD_ENV, 'process.env.NODE_ENV': BUILD_ENV }),
+        replace({ preventAssignment: true, BUILD_ENV, 'process.env.NODE_ENV': BUILD_ENV }),
         json(),
-        babel({ extensions, runtimeHelpers })
+        typescript({
+            tsconfig: './tsconfig.json',
+            tslib: require.resolve('tslib'), // Ensure tslib is being correctly resolved
+          }),
+        babel({ 
+            extensions, 
+            babelHelpers: 'runtime',
+            plugins: ['@babel/plugin-transform-runtime']
+        }),
+       
     ];
 
     if (!devBuild) {
@@ -57,9 +66,17 @@ function buildTestConfig(inputFile) {
     const plugins = [
         resolve(),
         commonjs(),
-        replace({ BUILD_ENV, 'process.env.NODE_ENV': BUILD_ENV }),
+        replace({ preventAssignment: true, BUILD_ENV, 'process.env.NODE_ENV': BUILD_ENV }),
         json(),
-        babel({ extensions, runtimeHelpers })
+        typescript({
+            tsconfig: './tsconfig.json',
+            tslib: require.resolve('tslib'), // Ensure tslib is being correctly resolved
+          }),
+        babel({ 
+            extensions, 
+            babelHelpers: 'runtime',
+            plugins: ['@babel/plugin-transform-runtime']
+        })
     ];
 
     if (!devBuild) {
@@ -70,8 +87,8 @@ function buildTestConfig(inputFile) {
 
     return {
         input: inputFile,
-        external: [ "ava" ],
-        external: () => true,
+        external: [ "ava"],
+        //external: () => true,
         output: {
             file: 'dist/' + outputFile,
             format: 'cjs',

@@ -2,6 +2,7 @@
 //(https://github.com/K2Documentation/K2Documentation.Samples.JavascriptBroker.Template/blob/master/src/test.ts)
 //and is provided here just for reference. It must be modified with the proper objects and methods.
 import test from 'ava';
+
 import '@k2oss/k2-broker-core/test-framework';
 import './index';
 
@@ -15,7 +16,6 @@ test('describe returns the hardcoded instance', async t => {
     mock('postSchema', function(result: any) {
         schema = result;
     });
-
     await Promise.resolve<void>(ondescribe());
     
     t.deepEqual(schema, {
