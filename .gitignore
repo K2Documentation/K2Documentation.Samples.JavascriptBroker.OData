@@ -62,3 +62,4 @@ typings/
 
 # Build Results
 dist/
+/null
